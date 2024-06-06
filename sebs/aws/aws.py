@@ -226,7 +226,7 @@ class AWS(System):
                     return False
                 else:
                     raise e
-
+        # PK: Needs to be refactored
         def repository_exists(repository_name):
             try:
                 ecr_client.describe_repositories(repositoryNames=[repository_name])
@@ -237,6 +237,8 @@ class AWS(System):
                 else:
                     self.logging.error(f"Error checking repository: {e}")
                     raise e 
+
+        # PK: Needs to be refactored
         def create_ecr_repository(repository_name):
             if not repository_exists(repository_name):
                 try:
