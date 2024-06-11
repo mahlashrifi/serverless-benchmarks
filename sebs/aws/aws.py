@@ -193,7 +193,7 @@ class AWS(System):
         )
         for val in ret:
             if "error" in val:
-                self.logging.error(f"Failed to push the image to registry {registry_name}")
+                self.logging.error(f"Failed to push the image to registry {repository_uri}")
                 raise RuntimeError(val)
 
     def repository_exists(self, repository_client, repository_name):
@@ -253,6 +253,7 @@ class AWS(System):
         self.create_repository(ecr_client, repository_name)
 
         # cached package, rebuild not enforced -> check for new one
+        # if cached is true, no need to build and push the image.
         if is_cached:
             repository_name, image_tag = repository_uri.split(':')[-2], repository_uri.split(':')[-1]
             if self.find_image(self.docker_client, repository_name, image_tag):
@@ -344,6 +345,8 @@ class AWS(System):
                 self.config.resources.lambda_role(self.session),
                 function_cfg,
             )
+            if container_deployment:
+                code_package = container_uri
             self.update_function(lambda_function, code_package)
             lambda_function.updated_code = True
             # PK: TO DO: Not sure if update function needs to be handled when performing container_deployment 
@@ -437,25 +440,28 @@ class AWS(System):
     """
 
     def update_function(self, function: Function, code_package: Benchmark):
-
-        function = cast(LambdaFunction, function)
         name = function.name
-        code_size = code_package.code_size
-        package = code_package.code_location
-        # Run AWS update
-        # AWS Lambda limit on zip deployment
-        if code_size < 50 * 1024 * 1024:
-            with open(package, "rb") as code_body:
-                self.client.update_function_code(FunctionName=name, ZipFile=code_body.read())
-        # Upload code package to S3, then update
+        function = cast(LambdaFunction, function)
+
+        if isinstance(code_package, str):
+            self.client.update_function_code(FunctionName=name, ImageUri = code_package)
         else:
-            code_package_name = os.path.basename(package)
-            storage = cast(S3, self.get_storage())
-            bucket = function.code_bucket(code_package.benchmark, storage)
-            storage.upload(bucket, package, code_package_name)
-            self.client.update_function_code(
-                FunctionName=name, S3Bucket=bucket, S3Key=code_package_name
-            )
+            code_size = code_package.code_size
+            package = code_package.code_location
+            # Run AWS update
+            # AWS Lambda limit on zip deployment
+            if code_size < 50 * 1024 * 1024:
+                with open(package, "rb") as code_body:
+                    self.client.update_function_code(FunctionName=name, ZipFile=code_body.read())
+            # Upload code package to S3, then update
+            else:
+                code_package_name = os.path.basename(package)
+                storage = cast(S3, self.get_storage())
+                bucket = function.code_bucket(code_package.benchmark, storage)
+                storage.upload(bucket, package, code_package_name)
+                self.client.update_function_code(
+                    FunctionName=name, S3Bucket=bucket, S3Key=code_package_name
+                )
         self.wait_function_updated(function)
         self.logging.info(f"Updated code of {name} function. ")
         # and update config
