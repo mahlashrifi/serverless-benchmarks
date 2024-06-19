@@ -181,7 +181,6 @@ class AWS(System):
 
         return os.path.join(directory, "{}.zip".format(benchmark)), bytes_size, container_uri
 
-    # PK: To Do: Test
     def find_image(self, repository_client, repository_name, image_tag) -> bool:
         try:
             response = repository_client.describe_images(
@@ -301,8 +300,6 @@ class AWS(System):
             tag=repository_uri, path=build_dir, buildargs=buildargs
         )
 
-        # Now push the image to the registry
-        # image will be located in a private repository // for AWS Image should be in the ECR
         self.logging.info(
             f"Push the benchmark base image {repository_name}:{image_tag} "
             f"to registry: {registry_name}."
