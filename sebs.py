@@ -138,7 +138,7 @@ def parse_common_params(
     update_nested_dict(config_obj, ["deployment", "name"], deployment)
     update_nested_dict(config_obj, ["experiments", "update_code"], update_code)
     update_nested_dict(config_obj, ["experiments", "update_storage"], update_storage)
-
+        
     if initialize_deployment:
         deployment_client = sebs_client.get_deployment(
             config_obj["deployment"], logging_filename=logging_filename
