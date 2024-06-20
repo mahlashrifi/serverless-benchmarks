@@ -49,7 +49,8 @@
       "docker_registry": {
       "registry": "",
       "username": "AWS",
-      "password": ""
+      "password": "",
+      "container_repository": "test_repo_new"
       }
     },
     "azure": {
