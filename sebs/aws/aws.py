@@ -181,7 +181,11 @@ class AWS(System):
         mbytes = bytes_size / 1024.0 / 1024.0
         self.logging.info("Zip archive size {:2f} MB".format(mbytes))
 
-        return os.path.join(directory, "{}.zip".format(benchmark)), bytes_size, container_uri
+        return (
+            os.path.join(directory, "{}.zip".format(benchmark)),
+            bytes_size,
+            container_uri,
+        )
 
     def find_image(self, repository_client, repository_name, image_tag) -> bool:
         try:
@@ -394,7 +398,10 @@ class AWS(System):
                     self.logging.info(
                         "Uploading function {} code to {}".format(func_name, code_bucket)
                     )
-                    create_function_params["Code"] = {"S3Bucket": code_bucket, "S3Key": code_prefix}
+                    create_function_params["Code"] = {
+                        "S3Bucket": code_bucket,
+                        "S3Key": code_prefix,
+                    }
 
                 create_function_params["Runtime"] = "{}{}".format(
                     language, self._map_language_runtime(language, language_runtime)
@@ -482,7 +489,9 @@ class AWS(System):
         self.logging.info(f"Updated code of {name} function. ")
         # and update config
         self.client.update_function_configuration(
-            FunctionName=name, Timeout=function.config.timeout, MemorySize=function.config.memory
+            FunctionName=name,
+            Timeout=function.config.timeout,
+            MemorySize=function.config.memory,
         )
         self.wait_function_updated(function)
         self.logging.info(f"Updated configuration of {name} function. ")
@@ -503,7 +512,9 @@ class AWS(System):
     def default_function_name(code_package: Benchmark) -> str:
         # Create function name
         func_name = "{}-{}-{}".format(
-            code_package.benchmark, code_package.language_name, code_package.language_version
+            code_package.benchmark,
+            code_package.language_name,
+            code_package.language_version,
         )
         return AWS.format_function_name(func_name)
 
