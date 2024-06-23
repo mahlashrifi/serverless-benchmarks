@@ -7,6 +7,7 @@ class Config:
     def __init__(self):
         self._update_code: bool = False
         self._update_storage: bool = False
+        self._container_deployment: bool = False
         self._download_results: bool = False
         self._flags: Dict[str, bool] = {}
         self._experiment_configs: Dict[str, dict] = {}
@@ -46,6 +47,7 @@ class Config:
             "runtime": self._runtime.serialize(),
             "flags": self._flags,
             "experiments": self._experiment_configs,
+            "container_deployment": self._container_deployment,
         }
         return out
 
