@@ -97,13 +97,11 @@ def common_params(func):
         type=str,
         help="Resource prefix to look for.",
     )
-
     @click.option(
         "--container-deployment/--no-container-deployment",
         default=False,
         help="Use container deployment or not",
     )
-
     @simplified_common_params
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
