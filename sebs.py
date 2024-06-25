@@ -148,7 +148,7 @@ def parse_common_params(
 
     if initialize_deployment:
         deployment_client = sebs_client.get_deployment(
-            config_obj["deployment"], logging_filename=logging_filename
+            config_obj, logging_filename=logging_filename
         )
         deployment_client.initialize(resource_prefix=resource_prefix)
     else:
